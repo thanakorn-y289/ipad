@@ -3,18 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#9a2f3f">
   <title>ระบบยืม-คืน iPad · โรงเรียนปากช่อง</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2'%3E%3Crect x='5' y='2' width='14' height='20' rx='2.5'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
   <!-- ปุ่มเข้าสู่ระบบด้วย Google — skill pcschool-google-login (โค้ดชุดเดียวกับ /ask /doc /senddoc) -->
   <script src="https://accounts.google.com/gsi/client" async onload="window.gReady && window.gReady()"></script>
   <style>
-    html, body { margin: 0; height: 100%; background: #f6f7f9; overflow: hidden; }
+    html, body { margin: 0; height: 100%; background: #fcf4f6; overflow: hidden; }
     #app { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; }
     #loader { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
-      background: #f6f7f9; font: 15px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #64748b; transition: opacity .35s; z-index: 10; }
+      background: linear-gradient(180deg, #fcf4f6, #fff 55%, #f5f7fa); font: 15px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #7b2230; transition: opacity .35s; z-index: 10; }
     #loader.off { opacity: 0; pointer-events: none; }
-    #loader i { width: 28px; height: 28px; border: 3px solid #e2e8f0; border-top-color: #0f172a; border-radius: 50%; animation: spin .8s linear infinite; }
+    #loader i { width: 28px; height: 28px; border: 3px solid #e2e8f0; border-top-color: #9a2f3f; border-radius: 50%; animation: spin .8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     /* ปุ่ม Google วางทับช่อง #gSlot ในการ์ดเข้าสู่ระบบของแอปตามพิกัดที่แอปส่งมา
        ปุ่มต้องอยู่หน้านี้ เพราะ Google รับปุ่มเฉพาะโดเมนที่ลงทะเบียน (กรอบ Apps Script ลงทะเบียนไม่ได้) */
@@ -27,7 +28,7 @@
   </style>
 </head>
 <body>
-  <div id="loader"><i></i>กำลังเปิดระบบยืม-คืน iPad…</div>
+  <div id="loader"><img src="logo.png" alt="" height="64"><i></i>กำลังเปิดระบบยืม-คืน iPad…</div>
   <!-- ลิงก์ Web app (Deploy → Manage deployments → Web app URL) — เปลี่ยนเมื่อสร้าง deployment ใหม่ (ปกติใช้ Edit → New version จึงไม่ต้องเปลี่ยน) -->
   <iframe id="app" title="ระบบยืม-คืน iPad" allow="camera; clipboard-write"
           src="https://script.google.com/a/macros/pcschool.ac.th/s/AKfycbycDb1lJ7wUZjFbJ5ApGtNhmDnX0OdoL7Ptq2B8VR6bj8bd08nu-LPvvsuFD2lLcMlk/exec"></iframe>
