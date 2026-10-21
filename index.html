@@ -118,6 +118,12 @@
 
     window.addEventListener('message', function (ev) {
       var d = ev.data;
+      // แอปขอโหลดใหม่ทั้งหน้า (ลากหน้าจอลงในมือถือ)
+      if (d && d.tes === 'reload' && /\.googleusercontent\.com$/.test(String(ev.origin))) {
+        document.getElementById('loader').classList.remove('off');
+        location.reload();
+        return;
+      }
       if (!d || (d.tes !== 'auth' && d.tes !== 'gslot') || !/\.googleusercontent\.com$/.test(String(ev.origin))) return;
       gApp = ev.source; gOrigin = ev.origin;
       if (d.tes === 'gslot') { gRect = d.rect || null; gPlace(); return; }
