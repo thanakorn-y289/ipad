@@ -66,6 +66,16 @@
 
     // เบราว์เซอร์ในแอป (LINE/Facebook/Instagram) Google ไม่วาดปุ่ม → ปุ่ม "เปิดในเบราว์เซอร์"
     var gInApp = /\bLine\/|FBAN|FBAV|Instagram/i.test(navigator.userAgent);
+    // เด้งออกไปเบราว์เซอร์จริงอัตโนมัติ: LINE → openExternalBrowser=1 · Facebook/Instagram บน Android → Chrome
+    // (iPhone ใน Facebook/Instagram บังคับออกไม่ได้ → ยังมีปุ่ม "เปิดในเบราว์เซอร์")
+    (function () {
+      var ua = navigator.userAgent;
+      if (/\bLine\//i.test(ua) && !/[?&]openExternalBrowser=1/.test(location.search)) {
+        var u = new URL(location.href); u.searchParams.set('openExternalBrowser', '1'); location.replace(u.toString());
+      } else if (/Android/i.test(ua) && /FBAN|FBAV|Instagram/i.test(ua)) {
+        location.href = 'intent://' + location.host + location.pathname + location.search + location.hash + '#Intent;scheme=https;package=com.android.chrome;end';
+      }
+    })();
     var gFbTimer = 0;
     function gFallback(kind) {
       var fb = document.getElementById('gfb'), btn = document.getElementById('gbtn');
