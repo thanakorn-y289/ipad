@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#9a2f3f">
   <title>ระบบยืม-คืน iPad · โรงเรียนปากช่อง</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
   <!-- ปุ่มเข้าสู่ระบบด้วย Google — skill pcschool-google-login (โค้ดชุดเดียวกับ /ask /doc /senddoc) -->
@@ -15,26 +12,11 @@
   <style>
     html, body { margin: 0; height: 100%; background: #fcf4f6; overflow: hidden; }
     #app { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; }
-    /* หน้าโหลด % (ชุดเดียวกับ Styles.html ของแอป) */
-    .bootld{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;box-sizing:border-box;
-      background:radial-gradient(circle at 18% 12%,#f5e3e7 0,transparent 42%),radial-gradient(circle at 85% 92%,#fbf6ec 0,transparent 45%),linear-gradient(180deg,#fcf4f6,#fff 55%,#f5f7fa);transition:opacity .35s,visibility .35s}
-    .bootld.off{opacity:0;visibility:hidden;pointer-events:none}
-    .bl-card{width:min(400px,100%);box-sizing:border-box;background:rgba(255,255,255,.94);border:1px solid #f5e3e7;border-radius:24px;box-shadow:0 24px 60px -24px rgba(92,24,35,.32);padding:28px 26px 24px;display:flex;flex-direction:column;align-items:center;text-align:center}
-    .bl-ring{position:relative;width:116px;height:116px;display:grid;place-items:center;margin-bottom:14px}
-    .bl-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
-    .bl-track{fill:none;stroke:#f5e3e7;stroke-width:5}
-    .bl-arc{fill:none;stroke:url(#blg);stroke-width:5;stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .2s linear}
-    .bl-logo{display:block;width:54px;height:72px;margin:0;object-fit:contain;background-size:contain}
-    .bl-title{font-size:20px;font-weight:700;color:#5c1823}
-    .bl-msg{display:block;margin-top:4px;min-height:21px;font-size:14px;color:#6b7684}
-    .bl-row{display:flex;align-items:center;gap:14px;width:100%;margin-top:20px}
-    .bl-bar{flex:1;height:12px;border-radius:99px;background:#f5e3e7;overflow:hidden}
-    .bl-bar i{display:block;width:0;height:100%;border-radius:inherit;transition:width .2s linear;animation:blst .8s linear infinite;
-      background:repeating-linear-gradient(-45deg,rgba(255,255,255,.3) 0 8px,transparent 8px 16px),linear-gradient(90deg,#7b2230,#9a2f3f 45%,#c9a35a);background-size:22.63px 22.63px,100% 100%}
-    @keyframes blst{to{background-position:22.63px 0,0 0}}
-    .bl-pct{min-width:50px;text-align:right;font-size:20px;font-weight:700;color:#7b2230;font-variant-numeric:tabular-nums}
-    @media(prefers-reduced-motion:reduce){.bl-bar i{animation:none}}
-    #bootld { font-family: 'IBM Plex Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    #loader { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      background: linear-gradient(180deg, #fcf4f6, #fff 55%, #f5f7fa); font: 15px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #7b2230; transition: opacity .35s; z-index: 10; }
+    #loader.off { opacity: 0; pointer-events: none; }
+    #loader i { width: 28px; height: 28px; border: 3px solid #e2e8f0; border-top-color: #9a2f3f; border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
     /* ปุ่ม Google วางทับช่อง #gSlot ในการ์ดเข้าสู่ระบบของแอปตามพิกัดที่แอปส่งมา
        ปุ่มต้องอยู่หน้านี้ เพราะ Google รับปุ่มเฉพาะโดเมนที่ลงทะเบียน (กรอบ Apps Script ลงทะเบียนไม่ได้) */
     #gfloat { display: none; position: fixed; z-index: 5; align-items: center; justify-content: center; background: #fff; border-radius: 999px; }
@@ -46,7 +28,7 @@
   </style>
 </head>
 <body>
-  <div id="bootld" class="bootld" role="progressbar" aria-label="กำลังโหลด" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="bl-card"><div class="bl-ring"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="blg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a2f3f"/><stop offset="1" stop-color="#c9a35a"/></linearGradient></defs><circle class="bl-track" cx="60" cy="60" r="54"/><circle class="bl-arc" cx="60" cy="60" r="54" pathLength="100"/></svg><img class="bl-logo" src="logo.png" alt="ตราโรงเรียน"></div><b class="bl-title">ระบบยืม-คืน iPad</b><small class="bl-who"></small><small class="bl-msg">กำลังเชื่อมต่อ…</small><div class="bl-row"><div class="bl-bar"><i></i></div><b class="bl-pct">0%</b></div></div></div>
+  <div id="loader"><img src="logo.png" alt="" height="64"><i></i>กำลังเปิดระบบยืม-คืน iPad…</div>
   <!-- ลิงก์ Web app (Deploy → Manage deployments → Web app URL) — เปลี่ยนเมื่อสร้าง deployment ใหม่ (ปกติใช้ Edit → New version จึงไม่ต้องเปลี่ยน) -->
   <iframe id="app" title="ระบบยืม-คืน iPad" allow="camera; clipboard-write"
           src="https://script.google.com/a/macros/pcschool.ac.th/s/AKfycbycDb1lJ7wUZjFbJ5ApGtNhmDnX0OdoL7Ptq2B8VR6bj8bd08nu-LPvvsuFD2lLcMlk/exec"></iframe>
@@ -58,37 +40,12 @@
       var q = location.search.match(/[?&]reset=([a-f0-9]{64})/);
       if (q) link.src = link.src + '?reset=' + q[1];
     })();
-    /* หน้าโหลด % — วิ่งเองถึง ~92% แล้วรอสัญญาณพร้อม (BL.done) จึงเต็ม 100% แล้วจางหาย */
-    var BL = (function () {
-      var el = document.getElementById('bootld'), p = 0, fin = false, tm = 0, offT = 0;
-      var MSG = [[0, 'กำลังเชื่อมต่อ…'], [25, 'กำลังเปิดระบบ…'], [55, 'กำลังเข้าสู่ระบบ…'], [80, 'กำลังโหลดข้อมูล…'], [100, 'พร้อมแล้ว']];
-      function q(s) { return el.querySelector(s); }
-      function draw() {
-        var v = Math.floor(p), m = '';
-        for (var i = 0; i < MSG.length; i++) if (v >= MSG[i][0]) m = MSG[i][1];
-        q('.bl-bar i').style.width = p + '%'; q('.bl-arc').style.strokeDasharray = p + ' 100';
-        q('.bl-pct').textContent = v + '%'; q('.bl-msg').textContent = m; el.setAttribute('aria-valuenow', v);
-      }
-      function tick() {
-        p += fin ? Math.max(5, (100 - p) * .4) : (92 - p) * .035;
-        if (p >= 100) { p = 100; draw(); clearInterval(tm); tm = 0; offT = setTimeout(function () { el.classList.add('off'); }, 250); return; }
-        draw();
-      }
-      return {
-        start: function () { fin = false; p = 0; clearTimeout(offT); el.classList.remove('off'); clearInterval(tm); tm = setInterval(tick, 100); draw(); },
-        set: function (v) { if (v > p && !fin) { p = v; draw(); } },
-        done: function () { fin = true; }
-      };
-    })();
-    BL.start();
-    // กรอบโหลดเสร็จ = ~80% · แอปส่ง tes:'auth' state 'in' = 85% · 'ready' (ข้อมูลหน้าแรกมาแล้ว) / 'login' = 100%
-    // กันค้าง: 20 วิหลังกรอบโหลด / 30 วิรวม (แอปรุ่นเก่าไม่ส่ง 'ready')
-    link.addEventListener('load', function () { BL.set(80); setTimeout(BL.done, 20000); });
-    setTimeout(BL.done, 30000);
+    link.addEventListener('load', function () { document.getElementById('loader').classList.add('off'); });
+    setTimeout(function () { document.getElementById('loader').classList.add('off'); }, 12000);
 
     /*
      * ปุ่มเข้าสู่ระบบด้วย Google — คู่กับ GSSO ใน App.html และ googleLogin_ ใน Code.gs
-     *   แอป → หน้านี้ { tes:'auth', state:'login'|'in'|'ready'|'logout' } / { tes:'gslot', rect } (ช่องในการ์ด, null = ซ่อน)
+     *   แอป → หน้านี้ { tes:'auth', state:'login'|'in'|'logout' } / { tes:'gslot', rect } (ช่องในการ์ด, null = ซ่อน)
      *   หน้านี้ → แอป { tes:'gwrap' } (มีปุ่มจริง แอปจึงเว้นช่อง) / { tes:'gcred', credential, selectBy } (ผลจาก Google)
      * ส่ง credential กลับไปที่หน้าต่างที่ส่งข้อความมาเท่านั้น (ev.source + ev.origin ของกรอบ Apps Script)
      */
@@ -173,14 +130,12 @@
       var d = ev.data;
       // แอปขอโหลดใหม่ทั้งหน้า (ลากหน้าจอลงในมือถือ)
       if (d && d.tes === 'reload' && /\.googleusercontent\.com$/.test(String(ev.origin))) {
-        BL.start();
+        document.getElementById('loader').classList.remove('off');
         location.reload();
         return;
       }
       if (!d || (d.tes !== 'auth' && d.tes !== 'gslot') || !/\.googleusercontent\.com$/.test(String(ev.origin))) return;
       gApp = ev.source; gOrigin = ev.origin;
-      if (d.tes === 'auth') { if (d.state === 'in') BL.set(85); else BL.done(); }
-      if (d.tes === 'auth' && d.state === 'ready') return;
       if (d.tes === 'gslot') { gRect = d.rect || null; gPlace(); return; }
       if (d.state === 'login') {
         gWant = true;
