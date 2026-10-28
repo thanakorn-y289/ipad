@@ -60,7 +60,7 @@
     })();
     /* หน้าโหลด % — วิ่งเองถึง ~92% แล้วรอสัญญาณพร้อม (BL.done) จึงเต็ม 100% แล้วจางหาย */
     var BL = (function () {
-      var el = document.getElementById('bootld'), p = 0, fin = false, tm = 0;
+      var el = document.getElementById('bootld'), p = 0, fin = false, tm = 0, offT = 0;
       var MSG = [[0, 'กำลังเชื่อมต่อ…'], [25, 'กำลังเปิดระบบ…'], [55, 'กำลังเข้าสู่ระบบ…'], [80, 'กำลังโหลดข้อมูล…'], [100, 'พร้อมแล้ว']];
       function q(s) { return el.querySelector(s); }
       function draw() {
@@ -71,23 +71,24 @@
       }
       function tick() {
         p += fin ? Math.max(5, (100 - p) * .4) : (92 - p) * .035;
-        if (p >= 100) { p = 100; draw(); clearInterval(tm); tm = 0; setTimeout(function () { el.classList.add('off'); }, 250); return; }
+        if (p >= 100) { p = 100; draw(); clearInterval(tm); tm = 0; offT = setTimeout(function () { el.classList.add('off'); }, 250); return; }
         draw();
       }
       return {
-        start: function () { fin = false; p = 0; el.classList.remove('off'); clearInterval(tm); tm = setInterval(tick, 100); draw(); },
+        start: function () { fin = false; p = 0; clearTimeout(offT); el.classList.remove('off'); clearInterval(tm); tm = setInterval(tick, 100); draw(); },
         set: function (v) { if (v > p && !fin) { p = v; draw(); } },
         done: function () { fin = true; }
       };
     })();
     BL.start();
-    // กรอบโหลดเสร็จ = ~80% · แอปส่ง tes:'auth' (หน้าเข้าสู่ระบบ/เข้าแล้ว) = 100% · กันค้าง: 8 วิหลังกรอบโหลด / 20 วิรวม
-    link.addEventListener('load', function () { BL.set(80); setTimeout(BL.done, 8000); });
-    setTimeout(BL.done, 20000);
+    // กรอบโหลดเสร็จ = ~80% · แอปส่ง tes:'auth' state 'in' = 85% · 'ready' (ข้อมูลหน้าแรกมาแล้ว) / 'login' = 100%
+    // กันค้าง: 20 วิหลังกรอบโหลด / 30 วิรวม (แอปรุ่นเก่าไม่ส่ง 'ready')
+    link.addEventListener('load', function () { BL.set(80); setTimeout(BL.done, 20000); });
+    setTimeout(BL.done, 30000);
 
     /*
      * ปุ่มเข้าสู่ระบบด้วย Google — คู่กับ GSSO ใน App.html และ googleLogin_ ใน Code.gs
-     *   แอป → หน้านี้ { tes:'auth', state:'login'|'in'|'logout' } / { tes:'gslot', rect } (ช่องในการ์ด, null = ซ่อน)
+     *   แอป → หน้านี้ { tes:'auth', state:'login'|'in'|'ready'|'logout' } / { tes:'gslot', rect } (ช่องในการ์ด, null = ซ่อน)
      *   หน้านี้ → แอป { tes:'gwrap' } (มีปุ่มจริง แอปจึงเว้นช่อง) / { tes:'gcred', credential, selectBy } (ผลจาก Google)
      * ส่ง credential กลับไปที่หน้าต่างที่ส่งข้อความมาเท่านั้น (ev.source + ev.origin ของกรอบ Apps Script)
      */
@@ -178,7 +179,8 @@
       }
       if (!d || (d.tes !== 'auth' && d.tes !== 'gslot') || !/\.googleusercontent\.com$/.test(String(ev.origin))) return;
       gApp = ev.source; gOrigin = ev.origin;
-      if (d.tes === 'auth') BL.done();
+      if (d.tes === 'auth') { if (d.state === 'in') BL.set(85); else BL.done(); }
+      if (d.tes === 'auth' && d.state === 'ready') return;
       if (d.tes === 'gslot') { gRect = d.rect || null; gPlace(); return; }
       if (d.state === 'login') {
         gWant = true;
